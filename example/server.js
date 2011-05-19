@@ -35,5 +35,5 @@ require(['http', 'url', 'fs', 'sys', '../Yoda', './Chat'],
 	
 	var yoda = new Yoda({listen: server});	
 	//add an instance of the Chat class to Yoda
-	yoda.addInstance('chat',{Class: Chat});	
+	yoda.addInstance('chat', Chat);	
 });

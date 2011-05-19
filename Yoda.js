@@ -83,19 +83,22 @@ define(['sys' ,'./Socket.IO-node'], function(sys, io){
 	/**
 	 * Add an instance 
 	 * @param name name of the instance
-	 * @param opt options object
+	 * @param Class  must point to a constructor function
+	 * @param opt (optional)options object
 	 * # properties: 
-	 * - Class  must point to a constructor function
 	 * - instance (opt) a pre-configured instance
 	 * - arguments (opt) arguments array for the Constructor
 	 * 
 	 */
-	Yoda.prototype.addInstance = function(name, opt){
+	Yoda.prototype.addInstance = function(name, Class, opt){
 		var cl = {};		
-		if(typeof opt.Class === 'function'){
-			cl = this.inst[name] = apply2(opt.Class, opt.arguments);
+		if(typeof opt === 'undefined'){
+			opt={};
+		}
+		if(typeof Class === 'function'){
+			cl = this.inst[name] = apply2(Class, opt.arguments);
 		}else{
-			throw 'opt needs Class property';
+			throw 'need Class  to be a valid constructor';
 		}
 		
 		if(typeof opt.instance !== 'undefined'){

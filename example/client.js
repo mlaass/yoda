@@ -1,4 +1,4 @@
-require(['../YodaClient', './Chat'], function(Yoda, Chat){	
+require(['YodaClient', 'Chat'], function(Yoda, Chat){	
 	yoda = new Yoda(8000);		
 	
 	yoda.ready(function(){		

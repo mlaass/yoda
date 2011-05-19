@@ -15,14 +15,43 @@ Yoda builds on the solid foundations of [nodeJS](http://nodejs.org/),
 
 ## Getting started
 
-Have a look at the notorious chat example:
+First have a look at the notorious chat example:
 
-$ git clone http://github.com/jomoho/yoda
+$ git clone http://github.com/jomoho/yoda.git
 $ cd yoda
-$ git submodule init
-$ git submodule update
-$ cd example
+$ sh build.sh
 $ node r.js server.js
+
+## How To use Yoda
+
+On the server you add an instance of your class to Yoda using .addInstance(name, Constructor}) 
+server: 
+	require(['http','./path/to/Yoda', './path/to/Cat'], function(http, Yoda, Cat){	
+		var server = http.createServer()
+		server.listen(8000);
+		var yoda = new Yoda({listen: server});	
+		yoda.addInstance('cat1', Cat);	
+	});
+
+On the client you use .entangleInstance(name, Constructor) to get the entangled version of your Class.
+which can then be used by calling its member functions.
+Note: you can have member functions on the client exclusively if you start their name with client
+client:
+	require(['YodaClient', 'Cat'], function(Yoda, Cat){	
+		var yoda = new Yoda(8000);		
+		
+		yoda.ready(function(){		
+			var cat = yoda.entangleInstance('cat1', Cat);				
+			cat.meow();
+						
+			yoda.sync(function(){
+				//member functions that start with client wont synchronize with the server
+				//they just run on the client, which is useful for rendering
+				cat.clientRender();
+			});
+		});	
+	});
+
 
 ### License 
 
