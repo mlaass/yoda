@@ -2,8 +2,8 @@ Yoda: May the force be synchronized
 ===================================
 
 Yoda is a simple attempt to transcend the barrier between server and client 
-javascript.With simple interface to run synchronized instances of the same 
-js classes on the server and in the browser.
+javascript. With simple interface to run synchronized instances of the same 
+classes on the server and in the browser.
 
 Yoda builds on the solid foundations of [nodeJS](http://nodejs.org/), 
 [Socket.IO](http://socket.io/) and [requireJS](http://requirejs.org/).
@@ -19,11 +19,10 @@ Have a look at the notorious chat example:
 
 $ git clone http://github.com/jomoho/yoda
 $ cd yoda
+$ git submodule init
 $ git submodule update
 $ cd example
 $ node r.js server.js
-
-
 
 ### License 
 
