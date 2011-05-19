@@ -18,7 +18,9 @@ Yoda builds on the solid foundations of [nodeJS](http://nodejs.org/),
 Have a look at the notorious chat example:
 
 $ git clone http://github.com/jomoho/yoda
-$ cd yoda/example
+$ cd yoda
+$ git submodule update
+$ cd example
 $ node r.js server.js
 
 
