@@ -20,6 +20,7 @@ First have a look at the notorious chat example:
 $ git clone http://github.com/jomoho/yoda.git
 $ cd yoda
 $ sh build.sh
+$ cd example
 $ node r.js server.js
 
 ## How To use Yoda
