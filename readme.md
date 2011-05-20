@@ -1,5 +1,5 @@
-Yoda: May the force be synchronized
-===================================
+Yoda: Synchronizing the Force
+=============================
 
 Yoda is a simple attempt to transcend the barrier between server and client 
 javascript. With simple interface to run synchronized instances of the same 
@@ -8,47 +8,51 @@ classes on the server and in the browser.
 Yoda builds on the solid foundations of [nodeJS](http://nodejs.org/), 
 [Socket.IO](http://socket.io/) and [requireJS](http://requirejs.org/).
 
-## Requirements
+### Requirements
 
 - Node v0.1.103+ with `crypto` module support (make sure you have OpenSSL
   headers when installing Node to get it
 
-## Getting started
+### Getting started
 
 First have a look at the notorious chat example:
 
-$ git clone http://github.com/jomoho/yoda.git
-$ cd yoda
-$ sh build.sh
-$ cd example
-$ node r.js server.js
+	$ git clone http://github.com/jomoho/yoda.git  
+	$ cd yoda  
+	$ sh build.sh  
+	$ cd example  
+	$ node r.js server.js  
 
-## How To use Yoda
+### How To use Yoda
 
-On the server you add an instance of your class to Yoda using .addInstance(name, Constructor}) 
-server: 
-	require(['http','./path/to/Yoda', './path/to/Cat'], function(http, Yoda, Cat){	
+On the server you add an instance of your class to Yoda using `.addInstance(name, Constructor})`  
+
+`server:` 
+
+    require(['http','./path/to/Yoda', './path/to/Force'], function(http, Yoda, Force){
 		var server = http.createServer()
 		server.listen(8000);
 		var yoda = new Yoda({listen: server});	
-		yoda.addInstance('cat1', Cat);	
-	});
+		yoda.addInstance('force', Force);	
+    });
 
-On the client you use .entangleInstance(name, Constructor) to get the entangled version of your Class.
-which can then be used by calling its member functions.
+On the client you use `.entangleInstance(name, Constructor)` to get the entangled version of your Class,
+which can then be used by calling its member functions.  
 Note: you can have member functions on the client exclusively if you start their name with client
-client:
-	require(['YodaClient', 'Cat'], function(Yoda, Cat){	
+
+`client:`
+
+	require(['YodaClient', 'Force'], function(Yoda, Force){	
 		var yoda = new Yoda(8000);		
 		
 		yoda.ready(function(){		
-			var cat = yoda.entangleInstance('cat1', Cat);				
-			cat.meow();
+			var force = yoda.entangleInstance('force', Force);				
+			force.pull();
 						
 			yoda.sync(function(){
 				//member functions that start with client wont synchronize with the server
 				//they just run on the client, which is useful for rendering
-				cat.clientRender();
+				force.clientRender();
 			});
 		});	
 	});
