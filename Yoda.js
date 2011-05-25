@@ -4,7 +4,7 @@
  * see: http://github.com/jomoho/yoda for details
  */
 
-define(['sys' ,'./Socket.IO-node'], function(sys, io){
+define(['sys' ,'socket.io'], function(sys, io){
 	/**
 	 *@constructor
 	 *@param options configuration options
@@ -58,7 +58,7 @@ define(['sys' ,'./Socket.IO-node'], function(sys, io){
 					}else if(typeof args[i]==='object'){
 						args[i] = parseArgs(args[i], true);
 					}
-					sys.puts('arg '+i+'\t'+args[i]);
+					//sys.puts('arg '+i+'\t'+args[i]);
 					r[i] = args[i];
 				}
 				return r;
@@ -104,7 +104,7 @@ define(['sys' ,'./Socket.IO-node'], function(sys, io){
 		if(typeof opt.instance !== 'undefined'){
 			cl = opt.instanc;
 		}
-		this.facade[name] = this.parseObj(cl);
+		this.facade[name] = this.parseObj(cl, opt);
 		this.facade[name]._yoda = {args: opt.arguments};
 		
 		this.sync();
@@ -118,12 +118,15 @@ define(['sys' ,'./Socket.IO-node'], function(sys, io){
 	 * @param obj instance obj to parse
 	 * @returns [object] Facade
 	 */
-	Yoda.prototype.parseObj = function(obj){
+	Yoda.prototype.parseObj = function(obj, opt){
 		var facade = {};
+		
+		opt.ignore = !!opt.ignore? opt.ignore: [];
+		opt.include = !!opt.include? opt.include: [];
 		for(var i in obj){
 			var t = typeof obj[i];
 			if(t === 'function'){
-				if(!i.match(/^client/)){
+				if((!i.match(/^client/) || i in opt.include) && !(i in opt.ignore)){
 					facade[i] = 'function';			
 				}
 			}else if(t === 'object'){
