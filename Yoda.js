@@ -33,7 +33,10 @@ define(['sys' ,'socket.io'], function(sys, io){
 					
 					client.broadcast(msg);
 					if(typeof cl[msg.fn] === 'function'){
-						cl[msg.fn].apply(cl, args);						
+						cl[msg.fn].apply(cl, args);	
+						
+						yoda.updateFacade(yoda.facade[msg.instance], cl);
+						
 						client.send(msg);
 					}
 				}				
@@ -123,15 +126,16 @@ define(['sys' ,'socket.io'], function(sys, io){
 		
 		opt.ignore = !!opt.ignore? opt.ignore: [];
 		opt.include = !!opt.include? opt.include: [];
+		
 		for(var i in obj){
 			var t = typeof obj[i];
 			if(t === 'function'){
-				if((!i.match(/^client/) || i in opt.include) && !(i in opt.ignore)){
+				if((!i.match(/^client/)) && !i.match(/^_/) && !(i in opt.ignore)){
 					facade[i] = 'function';			
 				}
 			}else if(t === 'object'){
 				if(! obj[i] instanceof Array){
-					facade[i] = parseObject(obj[i]);
+					facade[i] = this.parseObj(obj[i]);
 				}
 				else{
 					facade[i] = obj[i];
@@ -141,6 +145,23 @@ define(['sys' ,'socket.io'], function(sys, io){
 			}			
 		}
 		return facade;		
+	};
+	Yoda.prototype.updateFacade = function(facade, instance){
+		for(var i in facade){
+			if(facade[i] !== 'function' && typeof instance[i] !== 'undefined' ){
+				var t = typeof instance[i];
+				if(t === 'object'){
+					if(! instance[i] instanceof Array){
+						facade[i] = this.updateFacade(facade[i],instance[i]);
+					}
+					else{
+						facade[i] = instance[i];
+					}
+				}else{
+					facade[i] = instance[i];
+				}
+			}
+		}
 	};
 	
 	return Yoda;	

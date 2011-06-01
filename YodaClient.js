@@ -79,8 +79,10 @@ define( function(){
 	 * @returns new facade object which behaves like it is an instance of Class
 	 */
 	YodaClient.prototype.entangleInstance = function(inst, Class){
-		var cl = this.inst[inst] = apply2(Class, this.facade[inst]._yoda.args);
 		var facade = this.facade[inst];
+		var args= facade._yoda.args;
+		var cl = this.inst[inst] = apply2(Class, args);
+		
 		var self = this;
 		
 		var createCall = function(iname, fname, orig){
