@@ -19,9 +19,11 @@ define(['sys' ,'socket.io'], function(sys, io){
 		
 		this.inst = {};
 		this.facade = {};
-		
+		this._sync = function(){};
+		this._message= function(){};
 		//sockets
 		this.io.on('connection', function(client){
+			yoda.updateFacade();
 			client.send({facade: yoda.facade});			
 			client.broadcast({ announcement: client.sessionId + ' connected' });
 			
@@ -34,12 +36,14 @@ define(['sys' ,'socket.io'], function(sys, io){
 					client.broadcast(msg);
 					if(typeof cl[msg.fn] === 'function'){
 						cl[msg.fn].apply(cl, args);	
-						
-						yoda.updateFacade(yoda.facade[msg.instance], cl);
-						
 						client.send(msg);
-					}
-				}				
+						yoda.updateFacade();
+						yoda._sync(client, msg);
+					}					
+					
+				}else{
+					yoda._message(client, msg);
+				}
 			});
 			
 			client.on('disconnect', function(){
@@ -55,7 +59,7 @@ define(['sys' ,'socket.io'], function(sys, io){
 				}
 				for(var i in args){					
 					if(args[i] === '$id'){
-						args[i]= client.sessionId;
+						args[i] = client.sessionId;
 					}else if(args[i] === '$time'){
 						args[i] = new Date();
 					}else if(typeof args[i]==='object'){
@@ -79,9 +83,8 @@ define(['sys' ,'socket.io'], function(sys, io){
 	    };
 	}();
 
-	Yoda.prototype.sync = function(){
-		//broadcast the new facades
-		this.io.broadcast({facade: this.facade});
+	Yoda.prototype.sync = function(fn){
+		this._sync= fn;
 	};
 	/**
 	 * Add an instance 
@@ -96,7 +99,7 @@ define(['sys' ,'socket.io'], function(sys, io){
 	Yoda.prototype.addInstance = function(name, Class, opt){
 		var cl = {};		
 		if(typeof opt === 'undefined'){
-			opt={};
+			opt = {};
 		}
 		if(typeof Class === 'function'){
 			cl = this.inst[name] = apply2(Class, opt.arguments);
@@ -105,12 +108,13 @@ define(['sys' ,'socket.io'], function(sys, io){
 		}
 		
 		if(typeof opt.instance !== 'undefined'){
-			cl = opt.instanc;
+			cl = this.inst[name] = opt.instance;
 		}
 		this.facade[name] = this.parseObj(cl, opt);
 		this.facade[name]._yoda = {args: opt.arguments};
 		
-		this.sync();
+		//broadcast the new facades
+		this.io.broadcast({facade: this.facade});
 	};
 	Yoda.prototype.removeInstance = function(name){
 		delete this.inst[name];
@@ -146,22 +150,40 @@ define(['sys' ,'socket.io'], function(sys, io){
 		}
 		return facade;		
 	};
-	Yoda.prototype.updateFacade = function(facade, instance){
-		for(var i in facade){
-			if(facade[i] !== 'function' && typeof instance[i] !== 'undefined' ){
-				var t = typeof instance[i];
-				if(t === 'object'){
-					if(! instance[i] instanceof Array){
-						facade[i] = this.updateFacade(facade[i],instance[i]);
-					}
-					else{
+	Yoda.prototype.updateFacade = function(fac, inst){
+		var self=this;
+		var updateFacade = function(facade, instance){
+			for(var i in facade){
+				if(facade[i] !== 'function' && typeof instance[i] !== 'undefined' ){
+					var t = typeof instance[i];
+					if(t === 'object'){
+						if(true || ! instance[i] instanceof Array){
+							facade[i] = self.updateFacade(facade[i],instance[i]);
+						}
+						else{
+							facade[i] = instance[i];
+						}
+					}else{
 						facade[i] = instance[i];
 					}
-				}else{
-					facade[i] = instance[i];
 				}
 			}
+			return facade;
+		};
+		
+		if(! arguments.length){
+			for(var i in this.inst){
+				return updateFacade(this.facade[i], this.inst[i]);
+			}			
+		}else if(arguments.length === 2){
+			return updateFacade(fac, inst);
 		}
+	};
+	Yoda.prototype.message = function(fn){
+		this._message = fn;
+	};
+	Yoda.prototype.getInstance = function(name){
+		return this.inst[name];
 	};
 	
 	return Yoda;	
